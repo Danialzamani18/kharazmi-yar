@@ -1,0 +1,48 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  passwordHash  String?
+  image         String?
+  provider      String    @default("credentials") // credentials | github | guest
+  grade         Int       @default(8) // 7 | 8 | 9
+  role          String    @default("student") // student | admin
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  ideas         Idea[]
+}
+
+model Idea {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category      String
+  subcategory   String
+  title         String
+  difficulty    String   @default("medium") // beginner | medium | advanced
+  tools         String   // comma-separated list of available tools
+  grade         Int      @default(8)
+  summary       String
+  steps         String   // JSON string of steps array
+  materials     String   // JSON string of materials array
+  judgingTips   String   // JSON string of judging tips array
+  improvements  String   // JSON string of improvement suggestions array
+  isFavorite    Boolean  @default(false)
+  shareToken    String?  @unique
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([userId])
+}
